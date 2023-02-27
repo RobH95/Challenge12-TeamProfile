@@ -40,16 +40,25 @@ function askForEmployeeInfo() {
       type: 'input',
       name: 'employeeId',
       message: 'What is the employee ID?',
+      when: function (answers) {
+        return answers.employeeType !== 'Finish';
+      }
     },
     {
       type: 'input',
       name: 'employeeName',
       message: 'What is the employee name?',
+      when: function (answers) {
+        return answers.employeeType !== 'Finish';
+      }
     },
     {
       type: 'input',
       name: 'employeeEmail',
       message: 'What is the employee email?',
+      when: function (answers) {
+        return answers.employeeType !== 'Finish';
+      }
     },
     {
       type: 'input',
@@ -76,8 +85,7 @@ function askForEmployeeInfo() {
       },
     },
   ])
-  .then((answers) => {
-    
+  .then((answers) => { 
     console.log('\nEmployee Information:');
     console.log(`Type: ${answers.employeeType}`);
     console.log(`ID: ${answers.employeeId}`);
@@ -94,10 +102,12 @@ function askForEmployeeInfo() {
     }
     console.log('-----------------------\n');
     if (answers.employeeType === 'Finish') {
+        // if the user has selected 'Finish', write the file to outputPath
         fs.writeFile(outputPath, render(team), (err) => {
             console.log('File created successfully!');
         })
     } else {
+        // otherwise, initialise newEmployee and determine whether to create a Manager, Engineer or Intern object
         let newEmployee;
         if (answers.employeeType === 'Manager') {
             newEmployee = new Manager(answers.employeeName, answers.employeeId, answers.employeeEmail, answers.officeId);
