@@ -13,29 +13,108 @@ const render = require("./src/page-template.js");
 
 // TODO: Write Code to gather information about the development team members, and render the HTML file.
 const team = [];
-
+/*
 let jared = new Manager('Jared', 1, 'jared@fakemail.com', 1)
-team.push(jared);
-
 let alec = new Engineer('Alec', 2, 'alec@fakemail.com', 'ibealec')
-team.push(alec);
-
 let grace = new Engineer('Grace', 3, 'grace@fakemail.com', 'gchoi2u')
-team.push(grace);
-
 let tammer = new Engineer('Tammer', 4, 'tammer@fakemail.com', 'tammerg')
-team.push(tammer);
-
 let john = new Intern('John', 5, 'john@fakemail.com', '2University')
-team.push(john);
+team.push(jared, alec, grace, tammer, john)
 
 // console.log(team)
 
 let html = render(team);
 // console.log(html)
+*/
 
-fs.writeFile(outputPath, html, function (err) {
-    if (err) throw err;
-    console.log('Saved to file');
-});
+
+function askForEmployeeInfo() {
+  inquirer.prompt([
+    {
+      type: 'list',
+      name: 'employeeType',
+      message: 'What is the employee type?',
+      choices: ['Manager', 'Engineer', 'Intern', 'Finish'],
+    },
+    {
+      type: 'input',
+      name: 'employeeId',
+      message: 'What is the employee ID?',
+    },
+    {
+      type: 'input',
+      name: 'employeeName',
+      message: 'What is the employee name?',
+    },
+    {
+      type: 'input',
+      name: 'employeeEmail',
+      message: 'What is the employee email?',
+    },
+    {
+      type: 'input',
+      name: 'officeId',
+      message: 'What is the office ID?',
+      when: function (answers) {
+        return answers.employeeType === 'Manager';
+      },
+    },
+    {
+      type: 'input',
+      name: 'github',
+      message: 'What is the GitHub username?',
+      when: function (answers) {
+        return answers.employeeType === 'Engineer';
+      },
+    },
+    {
+      type: 'input',
+      name: 'school',
+      message: 'What is the school name?',
+      when: function (answers) {
+        return answers.employeeType === 'Intern';
+      },
+    },
+  ])
+  .then((answers) => {
+    
+    console.log('\nEmployee Information:');
+    console.log(`Type: ${answers.employeeType}`);
+    console.log(`ID: ${answers.employeeId}`);
+    console.log(`Name: ${answers.employeeName}`);
+    console.log(`Email: ${answers.employeeEmail}`);
+    if (answers.officeId) {
+      console.log(`Office ID: ${answers.officeId}`);
+    }
+    if (answers.github) {
+      console.log(`GitHub Username: ${answers.github}`);
+    }
+    if (answers.school) {
+      console.log(`School: ${answers.school}`);
+    }
+    console.log('-----------------------\n');
+    if (answers.employeeType === 'Finish') {
+        fs.writeFile(outputPath, render(team), (err) => {
+            console.log('File created successfully!');
+        })
+    } else {
+        let newEmployee;
+        if (answers.employeeType === 'Manager') {
+            newEmployee = new Manager(answers.employeeName, answers.employeeId, answers.employeeEmail, answers.officeId);
+        } else if (answers.employeeType === 'Engineer') {
+            newEmployee = new Engineer(answers.employeeName, answers.employeeId, answers.employeeEmail, answers.github);
+        } else if (answers.employeeType === 'Intern') {
+            newEmployee = new Intern(answers.employeeName, answers.employeeId, answers.employeeEmail, answers.school);
+        }
+        team.push(newEmployee);
+        askForEmployeeInfo();
+    }
+  })
+  .catch((error) => {
+    console.log(error);
+  });
+}
+
+askForEmployeeInfo();
+
 
